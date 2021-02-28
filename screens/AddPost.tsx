@@ -5,7 +5,6 @@ import { StyleSheet, TextInput, View } from "react-native";
 import { RootStackParamList } from "../types";
 import ActionButton from "react-native-action-button";
 import { Ionicons } from "@expo/vector-icons";
-import * as Progress from "react-native-progress";
 
 type AddPostNavigationProp = StackNavigationProp<RootStackParamList, "AddPost">;
 type AddPostRouteProp = RouteProp<RootStackParamList, "AddPost">;
@@ -25,7 +24,6 @@ const AddPost = (props: Props) => {
         onChangeText={(text) => setText(text)}
         style={styles.textInput}
       />
-      <Progress.Pie progress={0.4} size={50} />
       <ActionButton buttonColor="rgba(231,76,60,1)">
         <ActionButton.Item
           buttonColor="#3498db"
