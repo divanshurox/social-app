@@ -5,6 +5,7 @@ import {
   View,
   Dimensions,
   TouchableOpacityProps,
+  TouchableOpacity,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
@@ -27,7 +28,7 @@ const FormButton = ({
   ...props
 }: Props) => {
   return (
-    <View
+    <TouchableOpacity
       style={[styles.container, styles.row, { backgroundColor: color }]}
       {...props}
     >
@@ -35,7 +36,7 @@ const FormButton = ({
       <View style={styles.textContainer}>
         <Text style={[styles.text, { color: textColor }]}>{text}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

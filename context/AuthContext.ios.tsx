@@ -1,6 +1,5 @@
 import React, { useState, createContext } from "react";
 import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
-
 interface UserInput {
   email: string;
   password: string;
@@ -19,7 +18,6 @@ const AuthContextProvider = ({ children }: any) => {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const login = async ({ email, password }: UserInput) => {
     const { user } = await auth().signInWithEmailAndPassword(email, password);
-    console.log(user);
     setUser(user);
   };
   const register = async ({ email, password }: UserInput) => {
@@ -27,7 +25,6 @@ const AuthContextProvider = ({ children }: any) => {
       email,
       password
     );
-    console.log(user);
     setUser(user);
   };
   const logout = async () => {

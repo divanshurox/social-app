@@ -5,7 +5,7 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import FormButton from "../components/FormButton";
 import FormInput from "../components/FormInput";
 import SocialButton from "../components/SocialButton";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext.android";
 import { RootStackParamList } from "../types";
 
 type OnboardingScreenNavigationProp = StackNavigationProp<
@@ -21,7 +21,7 @@ type Props = {
 const Login: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useContext(AuthContext);
+  const { login, googleLogin, facebookLogin } = useContext(AuthContext);
   return (
     <View style={styles.container}>
       <View>
@@ -67,6 +67,7 @@ const Login: React.FC<Props> = ({ navigation }) => {
         textColor="#1969ea"
         iconColor="#1969ea"
         iconName="facebook"
+        onPress={() => facebookLogin()}
       />
       <SocialButton
         text="Sign In with Google"
@@ -74,6 +75,7 @@ const Login: React.FC<Props> = ({ navigation }) => {
         textColor="#ef3e53"
         iconColor="#ef3e53"
         iconName="google"
+        onPress={() => googleLogin()}
       />
       <TouchableOpacity onPress={() => navigation?.navigate("SignUp")}>
         <Text style={styles.text}>Create new account</Text>

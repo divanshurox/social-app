@@ -5,7 +5,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import FormButton from "../components/FormButton";
 import FormInput from "../components/FormInput";
 import SocialButton from "../components/SocialButton";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext.android";
 import { RootStackParamList } from "../types";
 
 type SignUpScreenNavigationProp = StackNavigationProp<
