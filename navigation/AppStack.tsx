@@ -22,20 +22,6 @@ const AuthStack = () => {
         name="AddPost"
         component={AddPost}
         options={{
-          headerRight: () => (
-            <View
-              style={{
-                marginRight: 20,
-                backgroundColor: "#c4d9fc",
-                padding: 10,
-                borderRadius: 10,
-              }}
-            >
-              <Text style={{ color: "dodgerblue", fontWeight: "bold" }}>
-                Post
-              </Text>
-            </View>
-          ),
           headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: "white",

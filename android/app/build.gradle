@@ -138,6 +138,10 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
+        multiDexEnabled true
+    }
+    dexOptions {
+        javaMaxHeapSize "4g" // 2g should be also OK
     }
     splits {
         abi {
@@ -195,6 +199,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
+    implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.facebook.android:facebook-android-sdk:[5,6)'
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
