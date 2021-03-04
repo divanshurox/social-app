@@ -1,6 +1,6 @@
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   StyleSheet,
   TextInput,
@@ -17,6 +17,8 @@ import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import * as Permissions from "expo-permissions";
 import storage from "@react-native-firebase/storage";
 import { ProgressBar } from "@react-native-community/progress-bar-android";
+import firestore from "@react-native-firebase/firestore";
+import { AuthContext } from "../context/AuthContext.android";
 
 type AddPostNavigationProp = StackNavigationProp<RootStackParamList, "AddPost">;
 type AddPostRouteProp = RouteProp<RootStackParamList, "AddPost">;
@@ -24,11 +26,12 @@ interface Props {
   navigation: AddPostNavigationProp;
   route: AddPostRouteProp;
 }
-const AddPost = ({}: Props) => {
+const AddPost = ({ navigation }: Props) => {
   const [text, setText] = useState("");
-  const [image, setImage] = useState<string | undefined>("");
+  const [image, setImage] = useState<string | undefined | null>("");
   const [uploading, setUploading] = useState(false);
   const [transfered, setTransfered] = useState(0);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     askCameraPermissionAsync();
@@ -68,10 +71,26 @@ const AddPost = ({}: Props) => {
 
   const submitPost = async () => {
     const imageUrl = await uploadImageBucket();
-    console.log(imageUrl);
+    firestore()
+      .collection("posts")
+      .add({
+        userId: user?.uid,
+        post: text,
+        postImg: imageUrl,
+        postTime: firestore.Timestamp.fromDate(new Date()),
+        likes: null,
+        comments: null,
+      })
+      .then(() => {
+        navigation.navigate("Home");
+      });
+    setText("");
   };
 
   const uploadImageBucket = async (): Promise<string | null> => {
+    if (image === "" || typeof image === "undefined") {
+      return null;
+    }
     const imageUri = String(image);
     let fileName = image?.substring(image.lastIndexOf("/") + 1);
     const extension = fileName?.split(".").pop();
@@ -97,7 +116,6 @@ const AddPost = ({}: Props) => {
         },
       ]);
       setImage("");
-      setText("");
       return imageUrl;
     } catch (err) {
       console.log(err);

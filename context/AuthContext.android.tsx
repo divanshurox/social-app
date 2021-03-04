@@ -70,7 +70,6 @@ const AuthContextProvider = ({ children }: any) => {
 
     // Sign-in the user with the credential
     const { user } = await auth().signInWithCredential(facebookCredential);
-    console.log(user);
     setUser(user);
   };
   return (

@@ -6,4 +6,7 @@ export type RootStackParamList = {
   Messages: undefined;
   Profile: undefined;
   AddPost: undefined;
+  Chat: {
+    userName: string;
+  };
 };

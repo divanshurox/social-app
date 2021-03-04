@@ -5,6 +5,7 @@ import {
 import React from "react";
 import { StyleSheet, View, Text } from "react-native";
 import AddPost from "../screens/AddPost";
+import Chat from "../screens/Chat";
 import BottomTab from "./BottomTab";
 
 const Stack = createStackNavigator();
@@ -17,6 +18,18 @@ const AuthStack = () => {
         options={{
           header: () => null,
         }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={Chat}
+        options={({ route }) => ({
+          headerTitleAlign: "center",
+          headerStyle: {
+            elevation: 0,
+            shadowColor: "white",
+          },
+          title: route?.params?.userName,
+        })}
       />
       <Stack.Screen
         name="AddPost"

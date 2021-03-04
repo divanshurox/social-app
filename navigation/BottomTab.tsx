@@ -11,6 +11,8 @@ import {
 } from "@react-navigation/stack";
 import { View } from "react-native";
 import { RootStackParamList } from "../types";
+import Chat from "../screens/Chat";
+import { getFocusedRouteNameFromRoute, Route } from "@react-navigation/native";
 
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -59,6 +61,27 @@ const HomeStack = ({ navigation }: Props) => {
   );
 };
 
+const MessageStack = createStackNavigator();
+
+const MessageStackFunc = () => {
+  return (
+    <MessageStack.Navigator>
+      <MessageStack.Screen
+        name="Message"
+        component={Messages}
+        options={{
+          headerTitleAlign: "center",
+          headerStyle: {
+            shadowColor: "white",
+            elevation: 0,
+          },
+          headerTitle: "Your Messages",
+        }}
+      />
+    </MessageStack.Navigator>
+  );
+};
+
 const BottomTab = ({}) => {
   return (
     <Tab.Navigator initialRouteName="Home" shifting>
@@ -74,8 +97,8 @@ const BottomTab = ({}) => {
         }}
       />
       <Tab.Screen
-        name="Messages"
-        component={Messages}
+        name="MessagesStack"
+        component={MessageStackFunc}
         options={{
           tabBarIcon: () => {
             return (
