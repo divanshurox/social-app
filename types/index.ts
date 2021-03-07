@@ -4,9 +4,20 @@ export type RootStackParamList = {
   SignUp: undefined;
   Home: undefined;
   Messages: undefined;
+  HomeProfile: {
+    userId: string;
+  };
   Profile: undefined;
   AddPost: undefined;
   Chat: {
     userName: string;
+  };
+  AutoAuth: undefined;
+  EditProfile: {
+    firstName: string | undefined;
+    lastName: string | undefined;
+    bio: string | undefined;
+    phone: string | undefined;
+    photoUrl: string | undefined;
   };
 };

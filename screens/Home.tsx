@@ -15,7 +15,7 @@ interface Props {
   route: HomeScreenRouteProp;
 }
 
-const Home = ({}: Props) => {
+const Home = ({ navigation }: Props) => {
   const [posts, setPosts] = useState<FeedCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleted, setDeleted] = useState(false);
@@ -35,9 +35,6 @@ const Home = ({}: Props) => {
         postsArr.push({
           id: doc.id,
           creatorId: userId,
-          avatar:
-            "https://scontent-del1-1.cdninstagram.com/v/t51.2885-19/s320x320/132805571_1343070402694388_283218687377004994_n.jpg?tp=1&_nc_ht=scontent-del1-1.cdninstagram.com&_nc_ohc=utcSw3BN-5QAX_V-5hY&oh=fd1d809e80df15148eb1fba17b69bb89&oe=6064F007",
-          name: "Divanshu Agarwal",
           text: post,
           image: postImg,
           interactions: {
@@ -173,6 +170,11 @@ const Home = ({}: Props) => {
         renderItem={({ item }) => (
           <FeedCard
             {...item}
+            onPress={() => {
+              navigation.navigate("HomeProfile", {
+                userId: item.creatorId,
+              });
+            }}
             onDelete={() => {
               Alert.alert("Attention", "Are you sure to delete the post?", [
                 {

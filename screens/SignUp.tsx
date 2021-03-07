@@ -70,7 +70,7 @@ const SignUp: React.FC<Props> = ({ navigation }) => {
       <FormButton
         text="Sign Up"
         color="#1197F6"
-        onPress={() => registerAsync(email, password, password2)}
+        onPress={() => registerAsync({ email, password, password2 })}
       />
       <View style={{ marginVertical: 20 }}>
         <Text style={{ fontWeight: "800" }}>

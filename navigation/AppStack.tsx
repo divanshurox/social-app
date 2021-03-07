@@ -6,6 +6,8 @@ import React from "react";
 import { StyleSheet, View, Text } from "react-native";
 import AddPost from "../screens/AddPost";
 import Chat from "../screens/Chat";
+import EditProfile from "../screens/EditProfile";
+import Profile from "../screens/Profile";
 import BottomTab from "./BottomTab";
 
 const Stack = createStackNavigator();
@@ -30,6 +32,25 @@ const AuthStack = () => {
           },
           title: route?.params?.userName,
         })}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{
+          headerTitleAlign: "center",
+          headerStyle: {
+            elevation: 0,
+            shadowColor: "white",
+          },
+          title: "Edit Profile",
+        }}
+      />
+      <Stack.Screen
+        name="HomeProfile"
+        component={Profile}
+        options={{
+          header: () => null,
+        }}
       />
       <Stack.Screen
         name="AddPost"

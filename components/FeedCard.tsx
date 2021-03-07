@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,8 +10,10 @@ import {
 } from "react-native";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext.android";
-import moment from "moment";
-import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
+import moment, { fn } from "moment";
+import firestore, {
+  FirebaseFirestoreTypes,
+} from "@react-native-firebase/firestore";
 import ProgressiveImage from "./ProgressiveImage";
 
 interface Interactions {
@@ -22,13 +24,12 @@ interface Interactions {
 export interface FeedCardProps {
   id: string;
   creatorId: string;
-  avatar: string;
-  name: string;
   time: string | FirebaseFirestoreTypes.Timestamp;
   text: string;
   image?: string;
   interactions?: Interactions;
   onDelete?: (id: string) => void;
+  onPress?: () => void;
 }
 
 const CARD_HEIGHT_WITH_IMAGE = 380;
@@ -38,20 +39,33 @@ const INTERPOLATED_CARD_HEIGHT_WITH_IMAGE = 430;
 const INTERPOLATED_CARD_HEIGHT_WITHOUT_IMAGE = 250;
 
 const FeedCard = ({
-  avatar,
   text,
   image,
   interactions,
-  name,
   time,
   creatorId,
   id,
   onDelete,
+  onPress,
 }: FeedCardProps) => {
   const [isLiked, setLiked] = useState(false);
   const [isCommented, setCommented] = useState(false);
   const [comment, setComment] = useState("");
+  const [userName, setUserName] = useState("");
+  const [userImg, setUserImg] = useState("");
   const { user } = useContext(AuthContext);
+  useEffect(() => {
+    fetchUser();
+    return () => fetchUser();
+  }, []);
+  const fetchUser = async () => {
+    const data = await firestore().collection("users").doc(creatorId).get();
+    if (data.exists) {
+      const { fName, lName, userImg }: any = data.data();
+      setUserName(fName + " " + lName);
+      setUserImg(userImg);
+    }
+  };
   const animVal = new Animated.Value(0);
   const cardHeight = animVal.interpolate({
     inputRange: [0, 1],
@@ -83,13 +97,15 @@ const FeedCard = ({
         <View>
           <Image
             source={{
-              uri: avatar,
+              uri: userImg,
             }}
             style={styles.avatarImage}
           />
         </View>
         <View style={styles.userInfoContainer}>
-          <Text style={{ fontWeight: "bold" }}>{name}</Text>
+          <TouchableOpacity onPress={onPress}>
+            <Text style={{ fontWeight: "bold" }}>{userName}</Text>
+          </TouchableOpacity>
           <Text>{moment(time.toDate()).fromNow()}</Text>
         </View>
       </View>

@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import Onboarding from "react-native-onboarding-swiper";
 import Header from "../components/Header";
+import AutoAuth from "../screens/AutoAuth";
 import Login from "../screens/Login";
 import SignUp from "../screens/SignUp";
 
@@ -29,13 +30,20 @@ const AuthStack = ({}) => {
   } else if (isFirstTime) {
     routename = "Onboarding";
   } else {
-    routename = "Login";
+    routename = "AutoAuth";
   }
   return (
     <Stack.Navigator initialRouteName={routename}>
       <Stack.Screen
         name="Onboarding"
         component={Onboarding}
+        options={{
+          header: () => null,
+        }}
+      />
+      <Stack.Screen
+        name="AutoAuth"
+        component={AutoAuth}
         options={{
           header: () => null,
         }}
