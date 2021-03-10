@@ -7,23 +7,19 @@ interface Props {
   id: string;
   userName: string;
   userImg: string;
-  messageTime: string;
-  messageText: string;
+  messageTime?: string;
+  messageText?: string;
   navigation: StackNavigationProp<RootStackParamList, "Messages">;
 }
 
-const MessageCard = ({
-  userName,
-  userImg,
-  messageText,
-  messageTime,
-  navigation,
-}: Props) => {
+const MessageCard = ({ userName, userImg, navigation, id }: Props) => {
   return (
     <TouchableOpacity
       onPress={() =>
         navigation.navigate("Chat", {
           userName,
+          id,
+          userImg,
         })
       }
       style={[
@@ -57,10 +53,7 @@ const MessageCard = ({
           ]}
         >
           <Text>{userName}</Text>
-          <Text>{messageTime}</Text>
-        </View>
-        <View>
-          <Text>{messageText.substring(0, 50) + "...."}</Text>
+          {/* <Text>{messageTime}</Text> */}
         </View>
       </View>
     </TouchableOpacity>
@@ -72,6 +65,7 @@ export default MessageCard;
 const styles = StyleSheet.create({
   root: {
     marginVertical: 5,
+    width: "100%",
   },
   image: {
     width: 60,

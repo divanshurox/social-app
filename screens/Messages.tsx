@@ -1,9 +1,11 @@
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import React from "react";
-import { StyleSheet, View, FlatList } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import { StyleSheet, View, FlatList, ActivityIndicator } from "react-native";
 import MessageCard from "../components/MessageCard";
 import { RootStackParamList } from "../types";
+import firestore from "@react-native-firebase/firestore";
+import { AuthContext } from "../context/AuthContext.android";
 
 type MessagesScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -15,60 +17,72 @@ interface Props {
   route: MessagesScreenRouteProp;
 }
 
-const MessagesArr = [
-  {
-    id: "1",
-    userName: "Jenny Doe",
-    userImg: "https://randomuser.me/api/portraits/men/96.jpg",
-    messageTime: "4 mins ago",
-    messageText:
-      "Hey there, this is my test for a post of my social app in React Native.",
-  },
-  {
-    id: "2",
-    userName: "John Doe",
-    userImg: "https://randomuser.me/api/portraits/women/3.jpg",
-    messageTime: "2 hours ago",
-    messageText:
-      "Hey there, this is my test for a post of my social app in React Native.",
-  },
-  {
-    id: "3",
-    userName: "Ken William",
-    userImg: "https://randomuser.me/api/portraits/women/0.jpg",
-    messageTime: "1 hours ago",
-    messageText:
-      "Hey there, this is my test for a post of my social app in React Native.",
-  },
-  {
-    id: "4",
-    userName: "Selina Paul",
-    userImg: "https://randomuser.me/api/portraits/men/89.jpg",
-    messageTime: "1 day ago",
-    messageText:
-      "Hey there, this is my test for a post of my social app in React Native.",
-  },
-  {
-    id: "5",
-    userName: "Christy Alex",
-    userImg: "https://randomuser.me/api/portraits/women/13.jpg",
-    messageTime: "2 days ago",
-    messageText:
-      "Hey there, this is my test for a post of my social app in React Native.",
-  },
-];
+interface MessageArray {
+  id: string;
+  userName: string;
+  userImg: string;
+  messageTime?: string;
+  messageText?: string;
+}
 
 const Messages = ({ navigation }: Props) => {
+  const [messagesArr, setMessageArr] = useState<MessageArray[] | []>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useContext(AuthContext);
+  const { profileData } = user;
+  useEffect(() => {
+    fetchMessageUser();
+  }, []);
+  const fetchMessageUser = async () => {
+    try {
+      setMessageArr([]);
+      let data = [];
+      Promise.all(
+        profileData.following.map(async (ele: any) => {
+          const doc = await firestore().collection("users").doc(ele).get();
+          if (doc.exists) {
+            const { userImg, fName, lName }: any = doc.data();
+            return {
+              id: doc.id,
+              userImg,
+              userName: fName + " " + lName,
+            };
+          }
+        })
+      ).then((res) => {
+        setMessageArr(res as any);
+      });
+      if (loading) {
+        setLoading(false);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <View style={styles.container}>
-      <FlatList
-        data={MessagesArr}
-        renderItem={({ item }) => (
-          <MessageCard navigation={navigation} {...item} />
-        )}
-        keyExtractor={(ele) => ele.id}
-        showsVerticalScrollIndicator={false}
-      />
+      {loading ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator size="large" color="dodgerblue" />
+        </View>
+      ) : (
+        <FlatList
+          data={messagesArr}
+          renderItem={({ item }) => (
+            <MessageCard navigation={navigation} {...item} />
+          )}
+          keyExtractor={(ele) => ele.id}
+          showsVerticalScrollIndicator={false}
+          refreshing={loading}
+          onRefresh={fetchMessageUser}
+        />
+      )}
     </View>
   );
 };

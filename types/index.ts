@@ -11,6 +11,8 @@ export type RootStackParamList = {
   AddPost: undefined;
   Chat: {
     userName: string;
+    id: string;
+    userImg: string;
   };
   AutoAuth: undefined;
   EditProfile: {

@@ -1,12 +1,13 @@
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, FlatList, View, Alert, ScrollView } from "react-native";
 import { RootStackParamList } from "../types";
 import FeedCard, { FeedCardProps } from "../components/FeedCard";
 import firestore from "@react-native-firebase/firestore";
 import storage from "@react-native-firebase/storage";
 import SkeletonPlaceholder from "react-native-skeleton-placeholder";
+import { AuthContext } from "../context/AuthContext.android";
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 type HomeScreenRouteProp = RouteProp<RootStackParamList, "Home">;
@@ -19,9 +20,23 @@ const Home = ({ navigation }: Props) => {
   const [posts, setPosts] = useState<FeedCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleted, setDeleted] = useState(false);
+  const { user, setUser } = useContext(AuthContext);
+  useEffect(() => {
+    fetchUser();
+  }, []);
   useEffect(() => {
     fetchPosts();
   }, [deleted]);
+  const fetchUser = async () => {
+    const data = await firestore().collection("users").doc(user?.uid).get();
+    if (data.exists) {
+      const obj = data.data();
+      setUser({
+        uid: user?.uid,
+        ...obj,
+      } as any);
+    }
+  };
   const fetchPosts = async () => {
     try {
       setPosts([]);

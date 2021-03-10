@@ -36,6 +36,7 @@ const Profile = ({ navigation, route }: Props) => {
   const [userPosts, setUserPosts] = useState<FeedCardProps[]>();
   const [loading, setLoading] = useState(true);
   const { user, logout } = useContext(AuthContext);
+  const { profileData }: any = user;
   const [deleted, setDeleted] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   const isFocused = useIsFocused();
@@ -50,7 +51,7 @@ const Profile = ({ navigation, route }: Props) => {
     return () => fetchPosts();
   }, [deleted]);
 
-  const userId = route.params ? route.params.userId : user?.uid;
+  const userId = route.params ? route.params?.userId : user?.uid;
 
   const fetchUser = async () => {
     const data = await firestore().collection("users").doc(userId).get();
@@ -94,7 +95,7 @@ const Profile = ({ navigation, route }: Props) => {
     const doc = await firestore().collection("posts").doc(id).get();
     if (doc.exists) {
       try {
-        const { postImg } = doc.data();
+        const { postImg }: any = doc.data();
         if (postImg !== null) {
           // First delete the image
           const imgRef = storage().refFromURL(postImg);
@@ -158,7 +159,7 @@ const Profile = ({ navigation, route }: Props) => {
         }: any = currentUserData.data();
         currentUserFollowers = [...followers, user?.uid];
         console.log(currentUserFollowers);
-        await firestore().collection("users").doc(route?.params.userId).update({
+        await firestore().collection("users").doc(route.params?.userId).update({
           "profileData.followers": currentUserFollowers,
         });
       }
@@ -222,7 +223,9 @@ const Profile = ({ navigation, route }: Props) => {
                 onPress={() => onFollowPress()}
               >
                 <Text style={{ fontWeight: "600", color: "black" }}>
-                  Follow
+                  {profileData.following.indexOf(route.params?.userId) !== -1
+                    ? "Following"
+                    : "Follow"}
                 </Text>
               </TouchableOpacity>
             </>
@@ -353,6 +356,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 10,
-    width: 70,
   },
 });

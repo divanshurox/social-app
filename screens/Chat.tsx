@@ -1,10 +1,13 @@
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import React, { useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { RootStackParamList } from "../types";
 import { GiftedChat, Send } from "react-native-gifted-chat";
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
+import { AuthContext } from "../context/AuthContext.android";
+import firestore from "@react-native-firebase/firestore";
+import moment from "moment";
 
 type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, "Chat">;
 type ChatScreenRouteProp = RouteProp<RootStackParamList, "Chat">;
@@ -32,41 +35,72 @@ interface Message {
   pending?: boolean;
 }
 
-const Chat = ({}: Props) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+const keyForMessageCollection = (key1: string, key2: string) => {
+  let res;
+  if (key1 > key2) {
+    res = key1 + key2;
+  } else {
+    res = key2 + key1;
+  }
+  return res;
+};
 
+const Chat = ({ navigation, route }: Props) => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const { user } = useContext(AuthContext);
+  const { userName, id, userImg } = route.params;
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: "Hello developer",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
-      {
-        _id: 2,
-        text: "Hello world!",
-        createdAt: new Date(),
-        user: {
-          _id: 1,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
-    ]);
+    fetchMessages();
   }, []);
 
-  const onSend = useCallback((messages = []) => {
+  const fetchMessages = async () => {
+    try {
+      let messagesArray = [];
+      const keyId = keyForMessageCollection(user?.uid as string, id);
+      const doc = await firestore().collection("messages").doc(keyId).get();
+      if (doc.exists) {
+        const { messages: PreviousMessages }: any = doc.data();
+        console.log(PreviousMessages);
+        setMessages(PreviousMessages);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const onSend = useCallback(async (messages = []) => {
+    const keyId = keyForMessageCollection(user?.uid as string, id);
+    const message = messages[0];
+    try {
+      let messagesArray = [];
+      const doc = await firestore().collection("messages").doc(keyId).get();
+      if (doc.exists) {
+        const { messages: previousMessages }: any = doc.data();
+        messagesArray = [
+          ...previousMessages,
+          {
+            ...message,
+            createdAt: moment(message.createdAt).format(),
+            user: {
+              _id: message.user._id,
+              avatar: userImg,
+              name: userName,
+            },
+          },
+        ];
+        await firestore().collection("messages").doc(keyId).update({
+          messages: messagesArray,
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, messages)
     );
   }, []);
 
-  const renderSend = (props) => {
+  const renderSend = (props: any) => {
     return (
       <Send {...props}>
         <View>
@@ -80,16 +114,31 @@ const Chat = ({}: Props) => {
     );
   };
 
+  const renderLoading = () => {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color="dodgerblue" />
+      </View>
+    );
+  };
+
   return (
     <GiftedChat
       messages={messages}
       onSend={(messages) => onSend(messages)}
       user={{
-        _id: 1,
+        _id: user?.uid as any,
       }}
       alwaysShowSend
       renderSend={renderSend}
       scrollToBottom
+      renderLoading={renderLoading}
       scrollToBottomComponent={() => {
         return (
           <FontAwesome
