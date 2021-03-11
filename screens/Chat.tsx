@@ -1,13 +1,19 @@
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { RootStackParamList } from "../types";
-import { GiftedChat, Send } from "react-native-gifted-chat";
+import {
+  Actions,
+  ActionsProps,
+  GiftedChat,
+  Send,
+} from "react-native-gifted-chat";
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext.android";
 import firestore from "@react-native-firebase/firestore";
 import moment from "moment";
+import * as ImagePicker from "react-native-image-picker";
 
 type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, "Chat">;
 type ChatScreenRouteProp = RouteProp<RootStackParamList, "Chat">;
@@ -47,6 +53,7 @@ const keyForMessageCollection = (key1: string, key2: string) => {
 
 const Chat = ({ navigation, route }: Props) => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [image, setImage] = useState<string | undefined | null>(null);
   const { user } = useContext(AuthContext);
   const { userName, id, userImg } = route.params;
   useEffect(() => {
@@ -55,7 +62,6 @@ const Chat = ({ navigation, route }: Props) => {
 
   const fetchMessages = async () => {
     try {
-      let messagesArray = [];
       const keyId = keyForMessageCollection(user?.uid as string, id);
       const doc = await firestore().collection("messages").doc(keyId).get();
       if (doc.exists) {
@@ -127,6 +133,38 @@ const Chat = ({ navigation, route }: Props) => {
       </View>
     );
   };
+  const handlePickImage = () => {
+    ImagePicker.launchImageLibrary(
+      {
+        mediaType: "photo",
+        quality: 0.5,
+      },
+      ({ uri }) => {
+        setImage(uri);
+        navigation.navigate("ImageUpload", {
+          image: uri,
+          id,
+          userImg,
+          userName,
+        });
+      }
+    );
+  };
+  const renderActions = (
+    props: Readonly<ActionsProps> &
+      Readonly<{
+        children?: React.ReactNode;
+      }>
+  ) => {
+    return (
+      <Actions
+        {...props}
+        options={{
+          ["Send Image"]: handlePickImage,
+        }}
+      ></Actions>
+    );
+  };
 
   return (
     <GiftedChat
@@ -139,6 +177,13 @@ const Chat = ({ navigation, route }: Props) => {
       renderSend={renderSend}
       scrollToBottom
       renderLoading={renderLoading}
+      renderActions={renderActions}
+      onPressActionButton={handlePickImage}
+      imageStyle={{
+        width: "90%",
+        position: "relative",
+        left: 7,
+      }}
       scrollToBottomComponent={() => {
         return (
           <FontAwesome
@@ -156,11 +201,3 @@ const Chat = ({ navigation, route }: Props) => {
 };
 
 export default Chat;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

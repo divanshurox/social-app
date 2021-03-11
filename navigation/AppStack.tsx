@@ -7,6 +7,7 @@ import { StyleSheet, View, Text } from "react-native";
 import AddPost from "../screens/AddPost";
 import Chat from "../screens/Chat";
 import EditProfile from "../screens/EditProfile";
+import ImageUpload from "../screens/ImageUpload";
 import Profile from "../screens/Profile";
 import BottomTab from "./BottomTab";
 
@@ -48,6 +49,13 @@ const AuthStack = () => {
       <Stack.Screen
         name="HomeProfile"
         component={Profile}
+        options={{
+          header: () => null,
+        }}
+      />
+      <Stack.Screen
+        name="ImageUpload"
+        component={ImageUpload}
         options={{
           header: () => null,
         }}

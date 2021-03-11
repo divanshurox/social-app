@@ -22,4 +22,10 @@ export type RootStackParamList = {
     phone: string | undefined;
     photoUrl: string | undefined;
   };
+  ImageUpload: {
+    image: string | undefined | null;
+    id: string;
+    userName: string;
+    userImg: string;
+  };
 };
