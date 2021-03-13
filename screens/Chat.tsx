@@ -56,23 +56,19 @@ const Chat = ({ navigation, route }: Props) => {
   const [image, setImage] = useState<string | undefined | null>(null);
   const { user } = useContext(AuthContext);
   const { userName, id, userImg } = route.params;
+  const keyId = keyForMessageCollection(user?.uid as string, id);
   useEffect(() => {
-    fetchMessages();
-  }, []);
-
-  const fetchMessages = async () => {
-    try {
-      const keyId = keyForMessageCollection(user?.uid as string, id);
-      const doc = await firestore().collection("messages").doc(keyId).get();
-      if (doc.exists) {
-        const { messages: PreviousMessages }: any = doc.data();
-        console.log(PreviousMessages);
-        setMessages(PreviousMessages);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
+    const subcriber = firestore()
+      .collection("messages")
+      .doc(keyId)
+      .onSnapshot((docSnapshot) => {
+        if (docSnapshot.exists) {
+          const { messages: PreviousMessages }: any = docSnapshot.data();
+          setMessages(PreviousMessages);
+        }
+      });
+    return () => subcriber();
+  }, [keyId]);
 
   const onSend = useCallback(async (messages = []) => {
     const keyId = keyForMessageCollection(user?.uid as string, id);
@@ -101,9 +97,9 @@ const Chat = ({ navigation, route }: Props) => {
     } catch (err) {
       console.log(err);
     }
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, messages)
-    );
+    // setMessages((previousMessages) =>
+    //   GiftedChat.append(previousMessages, messages)
+    // );
   }, []);
 
   const renderSend = (props: any) => {
@@ -139,14 +135,16 @@ const Chat = ({ navigation, route }: Props) => {
         mediaType: "photo",
         quality: 0.5,
       },
-      ({ uri }) => {
-        setImage(uri);
-        navigation.navigate("ImageUpload", {
-          image: uri,
-          id,
-          userImg,
-          userName,
-        });
+      ({ uri, didCancel }) => {
+        if (!didCancel) {
+          setImage(uri);
+          navigation.navigate("ImageUpload", {
+            image: uri,
+            id,
+            userImg,
+            userName,
+          });
+        }
       }
     );
   };
